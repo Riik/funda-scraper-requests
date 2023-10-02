@@ -4,7 +4,7 @@ import datetime
 import json
 import multiprocessing as mp
 import os
-from typing import List, Literal, Optional
+from typing import List, Dict, Optional
 
 import pandas as pd
 import requests
@@ -31,6 +31,7 @@ class FundaScraper(object):
         find_past: bool = False,
         min_price: Optional[int] = None,
         max_price: Optional[int] = None,
+        extra_args: Optional[Dict[str, str]] = None
     ):
         # Init attributes
         self.area = area.lower().replace(" ", "-")
@@ -41,6 +42,7 @@ class FundaScraper(object):
         self.page_end = self.page_start + self.n_pages - 1
         self.min_price = min_price
         self.max_price = max_price
+        self.extra_args = extra_args
 
         # Instantiate along the way
         self.links: List[str] = []
@@ -151,6 +153,10 @@ class FundaScraper(object):
             min_price = "" if self.min_price is None else self.min_price
             max_price = "" if self.max_price is None else self.max_price
             main_url = f"{main_url}&price=%22{min_price}-{max_price}%22"
+
+        if self.extra_args:
+            for key, value in self.extra_args.items():
+                main_url = f"{main_url}&{key}={value}"
 
         return main_url
 
