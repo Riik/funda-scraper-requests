@@ -31,7 +31,7 @@ class FundaScraper(object):
         find_past: bool = False,
         min_price: Optional[int] = None,
         max_price: Optional[int] = None,
-        extra_args: Optional[Dict[str, str]] = None
+        extra_args: Optional[Dict[str, str]] = None,
     ):
         # Init attributes
         self.area = area.lower().replace(" ", "-")
@@ -98,6 +98,7 @@ class FundaScraper(object):
         find_past: Optional[bool] = None,
         min_price: Optional[int] = None,
         max_price: Optional[int] = None,
+        extra_args: Optional[Dict[str,str]] = None,
     ) -> None:
         """Overwrite or initialise the searching scope."""
         if area is not None:
@@ -114,6 +115,8 @@ class FundaScraper(object):
             self.min_price = min_price
         if max_price is not None:
             self.max_price = max_price
+        if extra_args is not None:
+            self.extra_args = extra_args
 
     def fetch_all_links(self, page_start: int = None, n_pages: int = None) -> None:
         """Find all the available links across multiple pages."""
