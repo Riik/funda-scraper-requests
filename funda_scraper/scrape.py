@@ -32,6 +32,7 @@ class FundaScraper(object):
         min_price: Optional[int] = None,
         max_price: Optional[int] = None,
         extra_args: Optional[Dict[str, str]] = None,
+        known_urls: Optional[List[str]] = None
     ):
         # Init attributes
         self.area = area.lower().replace(" ", "-")
@@ -43,6 +44,7 @@ class FundaScraper(object):
         self.min_price = min_price
         self.max_price = max_price
         self.extra_args = extra_args
+        self.known_urls = known_urls
 
         # Instantiate along the way
         self.links: List[str] = []
@@ -139,7 +141,7 @@ class FundaScraper(object):
                 logger.info(f"*** The last available page is {self.page_end} ***")
                 break
 
-        urls = list(set(urls))
+        urls = list(set(urls) - set(self.known_urls))
         logger.info(
             f"*** Got all the urls. {len(urls)} houses found from {self.page_start} to {self.page_end} ***"
         )
