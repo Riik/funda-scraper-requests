@@ -8,6 +8,7 @@ from typing import List, Dict, Optional
 
 import pandas as pd
 import requests
+import urllib3
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
@@ -130,6 +131,8 @@ class FundaScraper(object):
         urls = []
         main_url = self._build_main_query_url()
 
+        logger.info(f"*** Search URL {main_url} ***")
+
         for i in tqdm(range(page_start, page_start + n_pages)):
             try:
                 item_list = self._get_links_from_one_parent(
@@ -141,11 +144,11 @@ class FundaScraper(object):
                 logger.info(f"*** The last available page is {self.page_end} ***")
                 break
 
-        urls = list(set(urls) - set(self.known_urls))
+        new_urls = list(set(urls) - set(self.known_urls))
         logger.info(
-            f"*** Got all the urls. {len(urls)} houses found from {self.page_start} to {self.page_end} ***"
+            f"*** Got all the urls. {len(urls)} houses found ({len(new_urls)} new) from page {self.page_start} to {self.page_end}***"
         )
-        self.links = urls
+        self.links = new_urls
 
     def _build_main_query_url(self) -> str:
         query = "koop" if self.to_buy else "huur"
@@ -162,6 +165,8 @@ class FundaScraper(object):
         if self.extra_args:
             for key, value in self.extra_args.items():
                 main_url = f"{main_url}&{key}={value}"
+
+        main_url = urllib3.util.parse_url(main_url).url
 
         return main_url
 
@@ -288,6 +293,9 @@ class FundaScraper(object):
         :return: the (pre-processed) dataframe from scraping
         """
         self.fetch_all_links()
+        if not self.links:
+            logger.info("*** No new links found. ***")
+            return pd.DataFrame()
         self.scrape_pages()
 
         if raw_data:
