@@ -5,3 +5,4 @@ __pycache__
 venv
 db
 *.ipynb
+telegram_config.json
