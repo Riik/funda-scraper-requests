@@ -11,7 +11,7 @@ if __name__ == "__main__":
     ctx = sqlite3.connect("db/listings.db")
 
     new_entries = ctx.execute(
-        f"SELECT identifier, address, zip_code, price, living_area, num_of_rooms, url, year, energy_label, last_ask_price_m2 FROM {TABLE_NAME} WHERE notification_sent=0"
+        f"SELECT date_list, url, identifier FROM {TABLE_NAME} WHERE notification_sent=0"
     ).fetchall()
 
     with open("telegram_config.json", "r") as f:
@@ -27,29 +27,16 @@ if __name__ == "__main__":
         print(entry)
 
         (
-            identifier,
-            streetName,
-            postalCode,
             listPrice,
-            livingArea,
-            numberOfRooms,
             listingLink,
-            year,
-            energy_label,
-            ask_price_m2,
+            identifier,
             *_,
         ) = entry
-        postalCode = postalCode.split("        ")[-1]
-        message = f"""<a href="{listingLink}">{streetName}, {postalCode}</a>: {listPrice}
-    • Woon oppervlakte: {livingArea}
-    • Kamers: {numberOfRooms} 
-    • Bouwjaar: {year}
-    • Prijs / m2: {ask_price_m2}
-                   """
-
+        message = f"""<a href="{listingLink}">{listPrice}</a>"""
         print(message)
 
         print("Sending message")
+        # bot.send_message(text=message, chat_id=privateId, parse_mode=telegram.constants.PARSEMODE_HTML)
         bot.send_message(text=message, chat_id=groupId, parse_mode=telegram.constants.PARSEMODE_HTML)
         print("Message sent")
 
